@@ -48,6 +48,7 @@ e  =     10                  #[deg] Elongation Angle
 dse =    10                   #[m] Distance between Earth and Sun
 dss =    10                   #[m] Distance between Sun and Spacecraft
 
+#Only fill this in if the f is out of range of the diagram
 Tn_d  =   10                   #[K] Noise Temperature Dowlink
 Tn_u =    10                   #[K] Noise Temperature Uplink
 
