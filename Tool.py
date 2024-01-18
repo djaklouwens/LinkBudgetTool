@@ -109,10 +109,10 @@ def EIPR(P, D):
 
 
     
-def SNR(P, Tn):
-    return EIPR(P, Ds) - to_dB(Ls) - to_dB(Lpr) - to_dB(LFr) + to_dB(G(Dg)) - to_dB(Rd) - to_dB(TAR) - to_dB(Tn * kb) 
+def SNR(P, Tn, Dt, Dr, POAt):
+    return EIPR(P, Dt) - to_dB(Ls) - to_dB(Lpr(Dt, POAt)) - to_dB(LFr) + to_dB(G(Dr)) - to_dB(Rd) - to_dB(TAR) - to_dB(Tn * kb) 
 
-print ("SNR Downlink: ", SNR(Ps, Tns))
-print ("SNR Uplink: ", SNR(Pg, Tng))
+print ("SNR Downlink: ", SNR(Ps, Tns, Ds, Dg, POAs))
+print ("SNR Uplink: ", SNR(Pg, Tng, Dg, Ds, POAg))
 
 
