@@ -2,65 +2,63 @@
 import numpy as np
 
 #Inputs:
-
-
+ReqSNR_d    = 10                        #[-] Required Signal to Noise Ratio
+ReqSNR_u    = 10                        #[-] Required Signal to Noise Ratio
 
 #Spacecraft Parameters
+Ps          = 10                        #[W] Transmitter Power
+Ds          = 10                        #[m] Spacecraft Antenna Diameter
+POAs        = 10                        #[deg] Pointing Offset Angle
+wl          = 10                        #[m] Wavelength
 
-Ps   = 10                      #[W] Transmitter Power
-Ds   = 10                      #[m] Spacecraft Antenna Diameter
-wl =   10                    #[m] Wavelength
-f   =  10                     #[GHz] Frequency
-POAs = 10                      #[deg] Pointing Offset Angle
-
-SWA =   10                    #[deg] Swath Width Angle
-PSA =   10                  #[arcmin] Pixel Size Angle
-Bp  =   10                  #[-] Bits per Pixel
-Dc  =   10                 #[%] Duty Cycle
-Tdl =   10                     #[hr/day] Downlink Time
-
-
+SWA         = 10                        #[deg] Swath Width Angle
+PSA         = 10                        #[arcmin] Pixel Size Angle
+Bp          = 10                        #[-] Bits per Pixel
+Dc          = 10                        #[%] Duty Cycle
+Tdl         = 10                        #[hr/day] Downlink Time
 
 #Ground Station Parameters
-Pg =  10                     #[W] Transmitter Power
-Dg =  10                     #[m] Ground Antenna Diameter
+Pg          = 10                        #[W] Transmitter Power
+Dg          = 10                        #[m] Ground Antenna Diameter
 
-POAg = 10                      #[deg] Pointing Offset Angle
-Ru =   10                    #[bit/s] Required Uplink Data Rate
+POAg        = 10                        #[deg] Pointing Offset Angle
+Ru          = 10                        #[bit/s] Required Uplink Data Rate
 
 
-LFt =    10                  #[-] Transmitter Loss Factor
-LFr =    10                   #[-] Receiver Loss Factor
-TAR =    10                   #[-] Turn around Ratio
-eff =0.55                   #[-] Antenna Efficiency (0.55 for parabolic))
+LFt         = 10                        #[-] Transmitter Loss Factor
+LFr         = 10                        #[-] Receiver Loss Factor
+TAR         = 10                        #[-] Turn around Ratio
+eff         = 0.55                      #[-] Antenna Efficiency (0.55 for parabolic))
 
 #Target Body Parameters
-hb =     10                    #[m] Orbit Altitude above target body
-Mb  =    10                   #[kg] Target Body Mass
-Rb  =    10                   #[m] Target Body Radius
+hb          = 10                        #[m] Orbit Altitude above target body
+Mb          = 10                        #[kg] Target Body Mass
+Rb          = 10                        #[m] Target Body Radius
 
 InterPlanetaty = True
 #if false fill this in:
-he =     10                 #[m] Orbit Altitude above Earth
+he          = 10                        #[m] Orbit Altitude above Earth
 
 #if true fill this in:
-e  =     10                  #[deg] Elongation Angle
-dse =    10                   #[m] Distance between Earth and Sun
-dss =    10                   #[m] Distance between Sun and Spacecraft
+e           = 10                        #[deg] Elongation Angle
+dse         = 10                        #[m] Distance between Earth and Sun
+dss         = 10                        #[m] Distance between Sun and Spacecraft
 
 #Only fill this in if the f is out of range of the diagram
-Tn_d  =   10                   #[K] Noise Temperature Dowlink
-Tn_u =    10                   #[K] Noise Temperature Uplink
+Tn_d        = 10                        #[K] Noise Temperature Dowlink
+Tn_u        = 10                        #[K] Noise Temperature Uplink
 
-#Other Parameters
-Re  = 6371000                   #[m] Earth Radius
-Gc  = 6.67408*(10**-11)         #[m^3/s^2] Gravitational Constant
-c   = 299792458                 #[m/s] Speed of Light
-kb = 1.38065*(10**-23)         #[m^2 kg s^-2 K^-1] Boltzmann Constant
+#Other Parameters (Do not change)
+Re          = 6371000                   #[m] Earth Radius
+Gc          = 6.67408*(10**-11)         #[m^3/s^2] Gravitational Constant
+c           = 299792458                 #[m/s] Speed of Light
+kb          = 1.38065*(10**-23)         #[m^2 kg s^-2 K^-1] Boltzmann Constant
 
 #Caluclations:
 def to_dB(x): #Converts input to dB
     return 10 * np.log10(np.abs(x))
+
+f = c / wl
 
 #Transmitter Power
 Ps = to_dB(Ps) #dB
@@ -142,8 +140,31 @@ def get_Tn_u(f):
 def SNR(P, Tn, Dt, Dr, POAt):
     return EIPR(P, Dt) - to_dB(Ls) - to_dB(Lpr(Dt, POAt)) - to_dB(LFr) + to_dB(G(Dr)) - to_dB(Rd) - to_dB(TAR) - to_dB(Tn * kb) 
 
+def print_link_details(link_type, P, Tn, Dt, Dr, POAt):
+    print(f"\n{link_type} Link Details:")
+    print(f"Transmitter Power (Ps): {P} dB")
+    print(f"Space Loss (Ls): {Ls} dB")
+    print(f"Pointing Loss (Lpr): {Lpr(Dt, POAt)} dB")
+    print(f"Receiver Loss (LFr): {LFr} dB")
+    print(f"Antenna Gain (G): {G(Dr)} dB")
+    print(f"Required Data Rate (Rd): {Rd} ")
+    print(f"Turn Around Ratio (TAR): {TAR}")
+    print(f"Effective Noise Temperature (Tn * kb): {Tn * kb} dB")
+
 print ("SNR Downlink: ", SNR(Ps, get_Tn_d(f), Ds, Dg, POAs))
+print ("SNR Downlink Margin: ", SNR(Ps, get_Tn_d(f), Ds, Dg, POAs) - ReqSNR_d)
+print_link_details("Downlink", Ps, get_Tn_d(f), Ds, Dg, POAs)
+
 print ("SNR Uplink: ", SNR(Pg, get_Tn_u(f), Dg, Ds, POAg))
+print ("SNR Uplink Margin: ", SNR(Pg, get_Tn_u(f), Dg, Ds, POAg) - ReqSNR_u)
+print_link_details("Uplink", Pg, get_Tn_u(f), Dg, Ds, POAg)
+
+# Your existing code ...
+
+# Example usage:
+
+
+
 
 
 
